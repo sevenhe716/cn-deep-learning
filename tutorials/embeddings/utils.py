@@ -33,7 +33,7 @@ def get_batches(int_text, batch_size, seq_length):
     :param seq_length: The length of sequence
     :return: A list where each item is a tuple of (batch of input, batch of target).
     """
-    n_batches = int(len(int_text) / (batch_size * seq_length))
+    n_batches = len(int_text) // (batch_size * seq_length)
 
     # Drop the last few characters to make only full batches
     xdata = np.array(int_text[: n_batches * batch_size * seq_length])
@@ -53,7 +53,7 @@ def create_lookup_tables(words):
     """
     word_counts = Counter(words)
     sorted_vocab = sorted(word_counts, key=word_counts.get, reverse=True)
-    int_to_vocab = {ii: word for ii, word in enumerate(sorted_vocab)}
+    int_to_vocab = dict(enumerate(sorted_vocab))
     vocab_to_int = {word: ii for ii, word in int_to_vocab.items()}
 
     return vocab_to_int, int_to_vocab
