@@ -53,9 +53,10 @@ class PhysicsSim():
 
     def reset(self):
         self.time = 0.0
-        self.pose = np.array([0.0, 0.0, 10.0, 0.0, 0.0, 0.0]) if self.init_pose is None else self.init_pose
-        self.v = np.array([0.0, 0.0, 0.0]) if self.init_velocities is None else self.init_velocities
-        self.angular_v = np.array([0.0, 0.0, 0.0]) if self.init_angle_velocities is None else self.init_angle_velocities
+        # Bug修复：原来这里赋值的是引用，reset并不会将值清零，而是会将上次的状态数据带到下一次初始状态中，应改为拷贝
+        self.pose = np.array([0.0, 0.0, 10.0, 0.0, 0.0, 0.0]) if self.init_pose is None else self.init_pose.copy()
+        self.v = np.array([0.0, 0.0, 0.0]) if self.init_velocities is None else self.init_velocities.copy()
+        self.angular_v = np.array([0.0, 0.0, 0.0]) if self.init_angle_velocities is None else self.init_angle_velocities.copy()
         self.linear_accel = np.array([0.0, 0.0, 0.0])
         self.angular_accels = np.array([0.0, 0.0, 0.0])
         self.prop_wind_speed = np.array([0., 0., 0., 0.])
