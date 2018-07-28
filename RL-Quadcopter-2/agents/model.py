@@ -7,7 +7,6 @@ class Actor:
 
     def __init__(self, state_size, action_size, action_low, action_high):
         """Initialize parameters and build model.
-
         Params
         ======
             state_size (int): Dimension of each state
@@ -32,23 +31,34 @@ class Actor:
 
         # Add hidden layers
 
-        # 三个全连接层
-        net = layers.Dense(units=64)(states)
-        # 批标准化
-        net = layers.BatchNormalization()(net)
-        # Leaky ReLU作为激活函数
-        net = layers.LeakyReLU(0.01)(net)
-        net = layers.Dense(units=128)(net)
-        net = layers.BatchNormalization()(net)
-        net = layers.LeakyReLU(0.01)(net)
-        net = layers.Dense(units=64)(net)
-        net = layers.BatchNormalization()(net)
-        net = layers.LeakyReLU(0.01)(net)
+        # # 三个全连接层
+        # net = layers.Dense(units=64)(states)
+        # # 批标准化
+        # net = layers.BatchNormalization()(net)
+        # # Leaky ReLU作为激活函数
+        # net = layers.LeakyReLU(0.01)(net)
+        # net = layers.Dense(units=128)(net)
+        # net = layers.BatchNormalization()(net)
+        # net = layers.LeakyReLU(0.01)(net)
+        # net = layers.Dense(units=64)(net)
+        # net = layers.BatchNormalization()(net)
+        # net = layers.LeakyReLU(0.01)(net)
+        # net = layers.Dense(units=400, kernel_regularizer=layers.regularizers.l2(1e-6))(states)
+        # net = layers.BatchNormalization()(net)
+        # net = layers.Activation("relu")(net)
+        # net = layers.Dense(units=300, kernel_regularizer=layers.regularizers.l2(1e-6))(states)
+        # net = layers.BatchNormalization()(net)
+        # net = layers.Activation("relu")(net)
+
+        net = layers.Dense(units=32, activation='relu')(states)
+        net = layers.Dense(units=64, activation='relu')(net)
+        net = layers.Dense(units=128, activation='relu')(net)
 
         # Try different layer sizes, activations, add batch normalization, regularizers, etc.
 
         # Add final output layer with sigmoid activation
-        raw_actions = layers.Dense(units=self.action_size, activation='sigmoid', name='raw_actions')(net)
+        raw_actions = layers.Dense(units=self.action_size, activation='sigmoid', name='raw_actions'
+                                   , kernel_initializer=layers.initializers.RandomUniform(minval=-0.003, maxval=0.003))(net)
 
         # Scale [0, 1] output for each action dimension to proper range
         actions = layers.Lambda(lambda x: (x * self.action_range) + self.action_low, name='actions')(raw_actions)
@@ -64,7 +74,7 @@ class Actor:
 
         # Define optimizer and training function
         # 修改学习率为0.002
-        optimizer = optimizers.Adam(lr=0.002)
+        optimizer = optimizers.Adam(lr=0.001)
         updates_op = optimizer.get_updates(params=self.model.trainable_weights, loss=loss)
         self.train_fn = K.function(
             inputs=[self.model.input, action_gradients, K.learning_phase()],
@@ -77,7 +87,6 @@ class Critic:
 
     def __init__(self, state_size, action_size):
         """Initialize parameters and build model.
-
         Params
         ======
             state_size (int): Dimension of each state
@@ -98,34 +107,53 @@ class Critic:
 
         # Add hidden layer(s) for state pathway
         # 三个全连接层
-        net_states = layers.Dense(units=64)(states)
-        # 批标准化
-        net_states = layers.BatchNormalization()(net_states)
-        # Leaky ReLU作为激活函数
-        net_states = layers.LeakyReLU(0.01)(net_states)
-        net_states = layers.Dense(units=128)(net_states)
-        net_states = layers.BatchNormalization()(net_states)
-        net_states = layers.LeakyReLU(0.01)(net_states)
-        net_states = layers.Dense(units=64)(net_states)
-        net_states = layers.BatchNormalization()(net_states)
-        net_states = layers.LeakyReLU(0.01)(net_states)
+        # net_states = layers.Dense(units=64)(states)
+        # # 批标准化
+        # net_states = layers.BatchNormalization()(net_states)
+        # # Leaky ReLU作为激活函数
+        # net_states = layers.LeakyReLU(0.01)(net_states)
+        # net_states = layers.Dense(units=128)(net_states)
+        # net_states = layers.BatchNormalization()(net_states)
+        # net_states = layers.LeakyReLU(0.01)(net_states)
+        # net_states = layers.Dense(units=64)(net_states)
+        # net_states = layers.BatchNormalization()(net_states)
+        # net_states = layers.LeakyReLU(0.01)(net_states)
 
         # Add hidden layer(s) for action pathway
         # 三个全连接层
+        # net_actions = layers.Dense(units=64)(actions)
+        # # 批标准化
+        # net_actions = layers.BatchNormalization()(net_actions)
+        # # Leaky ReLU作为激活函数
+        # net_actions = layers.LeakyReLU(0.01)(net_actions)
+        # net_actions = layers.Dense(units=128)(net_actions)
+        # net_actions = layers.BatchNormalization()(net_actions)
+        # net_actions = layers.LeakyReLU(0.01)(net_actions)
+        # net_actions = layers.Dense(units=64)(net_actions)
+        # net_actions = layers.BatchNormalization()(net_actions)
+        # net_actions = layers.LeakyReLU(0.01)(net_actions)
+
+        # net_states = layers.Dense(units=400, kernel_regularizer=layers.regularizers.l2(1e-6))(states)
+        # net_states = layers.BatchNormalization()(net_states)
+        # net_states = layers.Activation("relu")(net_states)
+        #
+        # net_states = layers.Dense(units=300, kernel_regularizer=layers.regularizers.l2(1e-6))(net_states)
+        #
+        # net_actions = layers.Dense(units=300, kernel_regularizer=layers.regularizers.l2(1e-6))(actions)
+
+        # Add hidden layer(s) for state pathway
+        net_states = layers.Dense(units=64)(states)
+        # net_states = layers.BatchNormalization()(net_states)
+        net_states = layers.Activation("relu")(net_states)
+
+        net_states = layers.Dense(units=128)(net_states)
+
+        # Add hidden layer(s) for action pathway
         net_actions = layers.Dense(units=64)(actions)
-        # 批标准化
-        net_actions = layers.BatchNormalization()(net_actions)
-        # Leaky ReLU作为激活函数
-        net_actions = layers.LeakyReLU(0.01)(net_actions)
-        net_actions = layers.Dense(units=128)(net_actions)
-        net_actions = layers.BatchNormalization()(net_actions)
-        net_actions = layers.LeakyReLU(0.01)(net_actions)
-        net_actions = layers.Dense(units=64)(net_actions)
-        net_actions = layers.BatchNormalization()(net_actions)
-        net_actions = layers.LeakyReLU(0.01)(net_actions)
+        # net_actions = layers.BatchNormalization()(net_actions)
+        net_actions = layers.Activation("relu")(net_actions)
 
-        # Try different layer sizes, activations, add batch normalization, regularizers, etc.
-
+        net_actions = layers.Dense(units=128, activation="relu")(net_actions)
         # Combine state and action pathways
         net = layers.Add()([net_states, net_actions])
         net = layers.Activation('relu')(net)
@@ -133,14 +161,15 @@ class Critic:
         # Add more layers to the combined network if needed
 
         # Add final output layer to prduce action values (Q values)
-        Q_values = layers.Dense(units=1, name='q_values')(net)
+        Q_values = layers.Dense(units=1, name='q_values',kernel_initializer=layers.initializers.RandomUniform(minval=-0.003, maxval=0.003),
+                                kernel_regularizer=layers.regularizers.l2(0.01))(net)
 
         # Create Keras model
         self.model = models.Model(inputs=[states, actions], outputs=Q_values)
 
         # Define optimizer and compile model for training with built-in loss function
         # 修改学习率为0.002
-        optimizer = optimizers.Adam(lr=0.002)
+        optimizer = optimizers.Adam(lr=0.01)
         self.model.compile(optimizer=optimizer, loss='mse')
 
         # Compute action gradients (derivative of Q values w.r.t. to actions)

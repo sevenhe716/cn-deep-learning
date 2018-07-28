@@ -36,11 +36,11 @@ class OUNoise:
     def __init__(self, size, mu=None, theta=0.15, sigma=0.3):
         """Initialize parameters and noise process."""
         self.size = size
-        self.mu = mu if mu is not None else np.zeros(self.size)
+        self.mu = mu * np.ones(size) if mu is not None else np.zeros(size)
         # self.mu = np.ones(self.size)
         self.theta = theta
         self.sigma = sigma
-        self.state = np.ones(self.size) * self.mu
+        self.state = self.mu
         self.reset()
 
     def reset(self):

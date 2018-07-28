@@ -25,10 +25,10 @@ class DDPG():
         self.actor_target.model.set_weights(self.actor_local.model.get_weights())
 
         # Noise process
-        # self.exploration_mu = 0
-        self.exploration_theta = 0.05
-        self.exploration_sigma = 0.1
-        self.noise = OUNoise(self.action_size, theta=self.exploration_theta, sigma=self.exploration_sigma)
+        self.exploration_mu = 0
+        self.exploration_theta = 0.15
+        self.exploration_sigma = 0.2
+        self.noise = OUNoise(self.action_size, self.exploration_mu, self.exploration_theta, self.exploration_sigma)
 
         # Replay memory
         self.buffer_size = 100000
@@ -37,15 +37,25 @@ class DDPG():
 
         # Algorithm parameters
         self.gamma = 0.9  # discount factor
-        self.tau = 0.01  # for soft update of target parameters
+        self.tau = 0.001  # for soft update of target parameters
+
+        self.total_reward = 0
+        self.count = 0
+        self.best_score = -np.inf
+        self.score = 0
 
     def reset_episode(self):
+        self.total_reward = 0
+        self.count = 0
+        self.score = 0
         self.noise.reset()
         state = self.task.reset()
         self.last_state = state
         return state
 
     def step(self, action, reward, next_state, done):
+        self.total_reward += reward
+        self.count += 1
         # Save experience / reward
         self.memory.add(self.last_state, action, reward, next_state, done)
 
@@ -65,6 +75,10 @@ class DDPG():
 
     def learn(self, experiences):
         """Update policy and value parameters using given batch of experience tuples."""
+        self.score = self.total_reward / float(self.count) if self.count else 0.0
+        if self.score > self.best_score:
+            self.best_score = self.score
+
         # Convert experience tuples to separate arrays for each element (states, actions, rewards, etc.)
         states = np.vstack([e.state for e in experiences if e is not None])
         actions = np.array([e.action for e in experiences if e is not None]).astype(np.float32).reshape(-1, self.action_size)
