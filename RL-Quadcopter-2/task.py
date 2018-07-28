@@ -80,16 +80,13 @@ class Task():
         xy_penalty = abs(self.sim.pose[:2] - self.target_pos[:2]).sum() * 0.2
 
         # 悬停的速度要足够小
-        # v_penalty = np.linalg.norm(self.sim.v) * 0.2
-        v_penalty = 0
+        v_penalty = np.linalg.norm(self.sim.v) * 0.2
 
         # 悬停的角度要足够小
-        # angle_penalty = abs(self.sim.pose[3:]).sum() * 0.1
-        angle_penalty = 0
+        angle_penalty = abs(self.sim.pose[3:]).sum() * 0.1
 
         # 悬停的角速度尽量小
-        # angle_v_penalty = abs(self.sim.angular_v[:3]).sum() * 0.1
-        angle_v_penalty = 0
+        angle_v_penalty = abs(self.sim.angular_v[:3]).sum() * 0.1
 
         total_penalty = z_penalty + xy_penalty + v_penalty + angle_penalty + angle_v_penalty
 

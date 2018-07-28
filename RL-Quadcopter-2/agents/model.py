@@ -73,7 +73,7 @@ class Actor:
         # Incorporate any additional losses here (e.g. from regularizers)
 
         # Define optimizer and training function
-        # 修改学习率为0.002
+        # 修改学习率为0.001
         optimizer = optimizers.Adam(lr=0.001)
         updates_op = optimizer.get_updates(params=self.model.trainable_weights, loss=loss)
         self.train_fn = K.function(
@@ -133,26 +133,12 @@ class Critic:
         # net_actions = layers.BatchNormalization()(net_actions)
         # net_actions = layers.LeakyReLU(0.01)(net_actions)
 
-        # net_states = layers.Dense(units=400, kernel_regularizer=layers.regularizers.l2(1e-6))(states)
-        # net_states = layers.BatchNormalization()(net_states)
-        # net_states = layers.Activation("relu")(net_states)
-        #
-        # net_states = layers.Dense(units=300, kernel_regularizer=layers.regularizers.l2(1e-6))(net_states)
-        #
-        # net_actions = layers.Dense(units=300, kernel_regularizer=layers.regularizers.l2(1e-6))(actions)
-
         # Add hidden layer(s) for state pathway
-        net_states = layers.Dense(units=64)(states)
-        # net_states = layers.BatchNormalization()(net_states)
-        net_states = layers.Activation("relu")(net_states)
-
+        net_states = layers.Dense(units=64, activation="relu")(states)
         net_states = layers.Dense(units=128)(net_states)
 
         # Add hidden layer(s) for action pathway
-        net_actions = layers.Dense(units=64)(actions)
-        # net_actions = layers.BatchNormalization()(net_actions)
-        net_actions = layers.Activation("relu")(net_actions)
-
+        net_actions = layers.Dense(units=64, activation="relu")(actions)
         net_actions = layers.Dense(units=128, activation="relu")(net_actions)
         # Combine state and action pathways
         net = layers.Add()([net_states, net_actions])
@@ -161,14 +147,14 @@ class Critic:
         # Add more layers to the combined network if needed
 
         # Add final output layer to prduce action values (Q values)
-        Q_values = layers.Dense(units=1, name='q_values',kernel_initializer=layers.initializers.RandomUniform(minval=-0.003, maxval=0.003),
+        Q_values = layers.Dense(units=1, name='q_values', kernel_initializer=layers.initializers.RandomUniform(minval=-0.003, maxval=0.003),
                                 kernel_regularizer=layers.regularizers.l2(0.01))(net)
 
         # Create Keras model
         self.model = models.Model(inputs=[states, actions], outputs=Q_values)
 
         # Define optimizer and compile model for training with built-in loss function
-        # 修改学习率为0.002
+        # 修改学习率为0.01
         optimizer = optimizers.Adam(lr=0.01)
         self.model.compile(optimizer=optimizer, loss='mse')
 
